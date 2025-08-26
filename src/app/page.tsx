@@ -21,13 +21,47 @@ import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import { useToast } from '@/hooks/use-toast';
-import { checkCodeAction, generateProblemAction } from './actions';
+import { checkCodeAction, generateProblemAction, runCodeAction } from './actions';
 import { AppSidebar } from '@/components/app-sidebar';
 import type { GenerateCodingProblemOutput } from '@/ai/flows/auto-generate-problems';
 import type { CheckCodeOutput } from '@/ai/flows/check-code';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
+import { CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import type { RunCodeOutput } from '@/ai/flows/run-code';
+
 
 type Language = 'java' | 'python' | 'c';
 type Complexity = 'easy' | 'medium' | 'hard';
+type Status = 'correct' | 'moderate' | 'wrong';
+
+const statusConfig = {
+    correct: {
+      label: 'Correct',
+      color: 'bg-green-500 hover:bg-green-600',
+      icon: CheckCircle,
+    },
+    moderate: {
+      label: 'Moderate',
+      color: 'bg-yellow-500 hover:bg-yellow-600',
+      icon: AlertCircle,
+    },
+    wrong: {
+      label: 'Wrong',
+      color: 'bg-red-500 hover:bg-red-600',
+      icon: XCircle,
+    },
+  };
+  
+  const StatusBadge = ({ status }: { status: Status }) => {
+    const { label, color, icon: Icon } = statusConfig[status];
+    return (
+      <Badge className={cn('text-white', color)}>
+        <Icon className="h-4 w-4 mr-2" />
+        {label}
+      </Badge>
+    );
+  };
 
 export default function Home() {
   const [language, setLanguage] = useState<Language>('java');
@@ -36,9 +70,11 @@ export default function Home() {
   const [problem, setProblem] = useState<GenerateCodingProblemOutput | null>(null);
   const [code, setCode] = useState('');
   const [feedback, setFeedback] = useState<CheckCodeOutput | null>(null);
+  const [runResult, setRunResult] = useState<RunCodeOutput | null>(null);
 
   const [isGenerating, startGeneratingTransition] = useTransition();
   const [isChecking, startCheckingTransition] = useTransition();
+  const [isRunning, startRunningTransition] = useTransition();
 
   const { toast } = useToast();
 
@@ -48,6 +84,7 @@ export default function Home() {
     setComplexity(newComplexity);
     setProblem(null);
     setFeedback(null);
+    setRunResult(null);
     
     startGeneratingTransition(async () => {
       try {
@@ -95,6 +132,37 @@ export default function Home() {
     });
   };
 
+  const handleRunCode = async () => {
+    if (!code.trim()) {
+      toast({
+        variant: 'destructive',
+        title: 'Empty Code',
+        description: 'Please write some code before running.',
+      });
+      return;
+    }
+    setRunResult(null);
+    startRunningTransition(async () => {
+      try {
+        if (!problem) return;
+        const result = await runCodeAction({
+          code,
+          language,
+          problemStatement: problem.problemStatement,
+          expectedOutput: problem.expectedOutput,
+        });
+        setRunResult(result);
+      } catch (error) {
+        console.error('Failed to run code:', error);
+        toast({
+          variant: 'destructive',
+          title: 'Error',
+          description: 'Could not run your code. Please try again.',
+        });
+      }
+    });
+  }
+
   useEffect(() => {
     handleGenerateProblem(topic, language, complexity);
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -116,62 +184,41 @@ export default function Home() {
         </header>
         <main className="p-4 sm:p-6 lg:p-8 flex-1 overflow-auto">
           <div className="grid xl:grid-cols-2 gap-8 h-full max-w-screen-2xl mx-auto">
-            {/* Left Column: Problem Statement */}
-            <Card className="flex flex-col">
-              <CardHeader>
-                <CardTitle className="text-2xl font-headline tracking-tight">Coding Challenge</CardTitle>
-                <CardDescription>
-                  {isGenerating ? <Skeleton className="h-5 w-48 mt-1" /> : `${topic} - ${language} (${complexity})`}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="flex-1">
-                {isGenerating ? (
-                  <div className="space-y-4">
-                    <Skeleton className="h-6 w-1/3" />
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-5/6" />
-                    <Skeleton className="h-4 w-full" />
-                    <br/>
-                    <Skeleton className="h-6 w-1/4" />
-                    <Skeleton className="h-4 w-1/2" />
-                  </div>
-                ) : problem ? (
-                  <div className="space-y-6">
-                    <div>
-                      <h3 className="font-semibold text-lg mb-2">Problem Statement</h3>
-                      <p className="text-muted-foreground whitespace-pre-wrap">{problem.problemStatement}</p>
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-lg mb-2">Expected Output</h3>
-                      <pre className="bg-muted p-4 rounded-md text-sm font-code text-muted-foreground">{problem.expectedOutput}</pre>
-                    </div>
-                  </div>
-                ) : (
-                   <p className="text-muted-foreground">Select a problem from the sidebar to get started.</p>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Right Column: Code Editor & Feedback */}
+            {/* Left Column: Problem & Feedback */}
             <div className="flex flex-col gap-8">
               <Card className="flex flex-col flex-grow">
                 <CardHeader>
-                  <CardTitle className="text-2xl font-headline tracking-tight">Code Editor</CardTitle>
+                  <CardTitle className="text-2xl font-headline tracking-tight">Coding Challenge</CardTitle>
+                  <CardDescription>
+                    {isGenerating ? <Skeleton className="h-5 w-48 mt-1" /> : `${topic} - ${language} (${complexity})`}
+                  </CardDescription>
                 </CardHeader>
-                <CardContent className="flex-1 flex flex-col">
-                  <Textarea
-                    placeholder="Write your code here..."
-                    className="font-code text-sm flex-1 w-full h-96 bg-muted/50 dark:bg-card resize-none"
-                    value={code}
-                    onChange={(e) => setCode(e.target.value)}
-                    disabled={isGenerating}
-                  />
+                <CardContent className="flex-1">
+                  {isGenerating ? (
+                    <div className="space-y-4">
+                      <Skeleton className="h-6 w-1/3" />
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-5/6" />
+                      <Skeleton className="h-4 w-full" />
+                      <br/>
+                      <Skeleton className="h-6 w-1/4" />
+                      <Skeleton className="h-4 w-1/2" />
+                    </div>
+                  ) : problem ? (
+                    <div className="space-y-6">
+                      <div>
+                        <h3 className="font-semibold text-lg mb-2">Problem Statement</h3>
+                        <p className="text-muted-foreground whitespace-pre-wrap">{problem.problemStatement}</p>
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-lg mb-2">Expected Output</h3>
+                        <pre className="bg-muted p-4 rounded-md text-sm font-code text-muted-foreground">{problem.expectedOutput}</pre>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-muted-foreground">Select a problem from the sidebar to get started.</p>
+                  )}
                 </CardContent>
-                <CardFooter>
-                  <Button onClick={handleCheckCode} disabled={isChecking || isGenerating}>
-                    {isChecking ? 'Checking...' : 'Check Code'}
-                  </Button>
-                </CardFooter>
               </Card>
 
               <Card className="flex flex-col">
@@ -180,7 +227,7 @@ export default function Home() {
                   <CardDescription>Suggestions and feedback from our AI assistant.</CardDescription>
                 </CardHeader>
                 <CardContent className="min-h-48">
-                  {isChecking ? (
+                {isChecking || isRunning ? (
                     <div className="space-y-4">
                       <Skeleton className="h-6 w-1/3" />
                       <Skeleton className="h-4 w-full" />
@@ -189,23 +236,59 @@ export default function Home() {
                       <Skeleton className="h-6 w-1/4" />
                       <Skeleton className="h-4 w-full" />
                     </div>
-                  ) : feedback ? (
-                    <div className="space-y-6">
-                      <div>
-                        <h3 className="font-semibold text-lg mb-2">Feedback</h3>
-                        <p className="text-muted-foreground whitespace-pre-wrap">{feedback.feedback}</p>
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-lg mb-2">Suggestions</h3>
-                        <p className="text-muted-foreground whitespace-pre-wrap">{feedback.suggestions}</p>
-                      </div>
-                    </div>
                   ) : (
-                    <p className="text-muted-foreground">Submit your code to get feedback.</p>
+                    <div className="space-y-6">
+                      {runResult && (
+                        <div className="flex items-center gap-4">
+                            <StatusBadge status={runResult.status as Status} />
+                            <p className="text-muted-foreground">{runResult.output}</p>
+                        </div>
+                      )}
+                      {feedback && (
+                        <>
+                            <div>
+                                <h3 className="font-semibold text-lg mb-2">Feedback</h3>
+                                <p className="text-muted-foreground whitespace-pre-wrap">{feedback.feedback}</p>
+                            </div>
+                            <div>
+                                <h3 className="font-semibold text-lg mb-2">Suggestions</h3>
+                                <p className="text-muted-foreground whitespace-pre-wrap">{feedback.suggestions}</p>
+                            </div>
+                        </>
+                      )}
+                      {!runResult && !feedback && (
+                        <p className="text-muted-foreground">Submit your code to get feedback.</p>
+                      )}
+                    </div>
                   )}
                 </CardContent>
               </Card>
             </div>
+
+            {/* Right Column: Code Editor */}
+            <Card className="flex flex-col">
+              <CardHeader>
+                <CardTitle className="text-2xl font-headline tracking-tight">Code Editor</CardTitle>
+              </CardHeader>
+              <CardContent className="flex-1 flex flex-col">
+                <Textarea
+                  placeholder="Write your code here..."
+                  className="font-code text-sm flex-1 w-full h-96 bg-muted/50 dark:bg-card resize-none"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  disabled={isGenerating}
+                />
+              </CardContent>
+              <CardFooter className="flex-col sm:flex-row gap-2 items-start sm:items-center">
+                <Button onClick={handleRunCode} disabled={isRunning || isGenerating}>
+                    {isRunning ? 'Running...' : 'Run Code'}
+                </Button>
+                <Button onClick={handleCheckCode} disabled={isChecking || isGenerating} variant="secondary">
+                  {isChecking ? 'Checking...' : 'Check Code Quality'}
+                </Button>
+              </CardFooter>
+            </Card>
+
           </div>
         </main>
       </SidebarInset>

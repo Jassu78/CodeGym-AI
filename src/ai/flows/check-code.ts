@@ -1,4 +1,3 @@
-// This file uses server-side code.
 'use server';
 
 /**
@@ -42,7 +41,8 @@ const checkCodePrompt = ai.definePrompt({
   }}}
 
   Provide specific feedback related to aspects like the single responsibility principle, commenting, and code readability.
-  Include suggestions for refactoring or optimization where applicable.`,
+  Include suggestions for refactoring or optimization where applicable.
+  Do not check for correctness, only code quality.`,
 });
 
 const checkCodeFlow = ai.defineFlow(

@@ -4,6 +4,8 @@ import { generateCodingProblem } from '@/ai/flows/auto-generate-problems';
 import type { GenerateCodingProblemInput, GenerateCodingProblemOutput } from '@/ai/flows/auto-generate-problems';
 import { checkCode } from '@/ai/flows/check-code';
 import type { CheckCodeInput, CheckCodeOutput } from '@/ai/flows/check-code';
+import { runCode } from '@/ai/flows/run-code';
+import type { RunCodeInput, RunCodeOutput } from '@/ai/flows/run-code';
 import { z } from 'zod';
 
 const generateProblemSchema = z.object({
@@ -15,6 +17,13 @@ const generateProblemSchema = z.object({
 const checkCodeSchema = z.object({
   code: z.string(),
   language: z.enum(['java', 'python', 'c']),
+});
+
+const runCodeSchema = z.object({
+    code: z.string(),
+    language: z.enum(['java', 'python', 'c']),
+    problemStatement: z.string(),
+    expectedOutput: z.string(),
 });
 
 
@@ -51,3 +60,20 @@ export async function checkCodeAction(
     throw new Error('Failed to check code via AI.');
   }
 }
+
+export async function runCodeAction(
+    input: RunCodeInput
+  ): Promise<RunCodeOutput> {
+    const parsedInput = runCodeSchema.safeParse(input);
+    if (!parsedInput.success) {
+      throw new Error('Invalid input for running code.');
+    }
+  
+    try {
+      const result = await runCode(parsedInput.data);
+      return result;
+    } catch (error) {
+      console.error("Error in runCodeAction:", error);
+      throw new Error('Failed to run code via AI.');
+    }
+  }
