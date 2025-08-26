@@ -249,7 +249,7 @@ export default function Home() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-lg mb-2">Expected Output</h3>
-                      <pre className="bg-muted p-4 rounded-md text-sm font-code text-muted-foreground">{problem.expectedOutput}</pre>
+                      <pre className="bg-muted p-4 rounded-md text-sm font-code text-muted-foreground whitespace-pre-wrap">{problem.expectedOutput}</pre>
                     </div>
                   </div>
                 ) : (
