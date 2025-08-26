@@ -189,16 +189,30 @@ export default function Home() {
         responseLength,
       });
 
+      // Handle different response structures
+      let answer = '';
+      if (typeof response === 'string') {
+        answer = response;
+      } else if (response && typeof response === 'object' && 'answer' in response) {
+        answer = response.answer;
+      } else if (response && typeof response === 'object' && 'response' in response) {
+        answer = (response as any).response;
+      } else {
+        console.error('Unexpected response structure:', response);
+        answer = 'Sorry, I received an unexpected response format. Please try again.';
+      }
+
       const botMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         sender: 'bot',
-        text: response.answer,
+        text: answer,
         timestamp: new Date(),
         responseLength,
       };
 
       setChatHistory(prev => [...prev, botMessage]);
     } catch (error) {
+      console.error('Chatbot error:', error);
       const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         sender: 'bot',
