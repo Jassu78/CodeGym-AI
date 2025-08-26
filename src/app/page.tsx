@@ -25,6 +25,7 @@ import type { RunCodeOutput } from '@/ai/flows/run-code';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 
 type Language = 'java' | 'python' | 'c';
