@@ -6,6 +6,8 @@ import { checkCode } from '@/ai/flows/check-code';
 import type { CheckCodeInput, CheckCodeOutput } from '@/ai/flows/check-code';
 import { runCode } from '@/ai/flows/run-code';
 import type { RunCodeInput, RunCodeOutput } from '@/ai/flows/run-code';
+import { askChatbot } from '@/ai/flows/chatbot';
+import type { AskChatbotInput, AskChatbotOutput } from '@/ai/flows/chatbot';
 import { z } from 'zod';
 
 const generateProblemSchema = z.object({
@@ -24,6 +26,13 @@ const runCodeSchema = z.object({
     language: z.enum(['java', 'python', 'c']),
     problemStatement: z.string(),
     expectedOutput: z.string(),
+});
+
+const askChatbotSchema = z.object({
+    question: z.string(),
+    problemStatement: z.string(),
+    code: z.string().optional(),
+    language: z.enum(['java', 'python', 'c']),
 });
 
 
@@ -76,4 +85,21 @@ export async function runCodeAction(
       console.error("Error in runCodeAction:", error);
       throw new Error('Failed to run code via AI.');
     }
-  }
+}
+
+export async function askChatbotAction(
+    input: AskChatbotInput
+): Promise<AskChatbotOutput> {
+    const parsedInput = askChatbotSchema.safeParse(input);
+    if (!parsedInput.success) {
+        throw new Error('Invalid input for chatbot.');
+    }
+
+    try {
+        const result = await askChatbot(parsedInput.data);
+        return result;
+    } catch (error) {
+        console.error("Error in askChatbotAction:", error);
+        throw new Error('Failed to get response from chatbot.');
+    }
+}
