@@ -216,7 +216,7 @@ export default function Home() {
         onComplexityChange={setComplexity}
       />
       <SidebarInset>
-        <header className="flex items-center gap-4 border-b bg-card p-4 lg:hidden">
+        <header className="flex items-center gap-4 border-b bg-card p-4">
           <SidebarTrigger />
           <h1 className="text-xl font-semibold">CodeGym AI</h1>
         </header>
