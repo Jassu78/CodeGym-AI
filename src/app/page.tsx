@@ -189,6 +189,7 @@ export default function Home() {
             problemStatement: problem.problemStatement,
             code: code,
             language: language,
+            history: chatHistory,
         });
         setChatHistory([...newHistory, { sender: 'bot', text: result.answer }]);
     } catch (error) {

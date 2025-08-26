@@ -28,11 +28,17 @@ const runCodeSchema = z.object({
     expectedOutput: z.string(),
 });
 
+const chatMessageSchema = z.object({
+    sender: z.enum(['user', 'bot']),
+    text: z.string(),
+});
+
 const askChatbotSchema = z.object({
     question: z.string(),
     problemStatement: z.string(),
     code: z.string().optional(),
     language: z.enum(['java', 'python', 'c']),
+    history: z.array(chatMessageSchema).optional(),
 });
 
 

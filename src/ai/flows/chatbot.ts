@@ -11,11 +11,17 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
+const ChatMessageSchema = z.object({
+    sender: z.enum(['user', 'bot']),
+    text: z.string(),
+});
+
 const AskChatbotInputSchema = z.object({
   question: z.string().describe('The user\'s question about the coding problem or their code.'),
   problemStatement: z.string().describe('The problem statement the user is trying to solve.'),
   code: z.string().optional().describe('The user\'s current code.'),
   language: z.enum(['java', 'python', 'c']).describe('The programming language of the code.'),
+  history: z.array(ChatMessageSchema).optional().describe('The conversation history.'),
 });
 export type AskChatbotInput = z.infer<typeof AskChatbotInputSchema>;
 
@@ -43,7 +49,12 @@ Their current code is:
 \`\`\`
 {{/if}}
 
-The user's question is: "{{{question}}}"
+This is the conversation history so far:
+{{#each history}}
+**{{sender}}**: {{{text}}}
+{{/each}}
+
+The user's new question is: "{{{question}}}"
 
 Please provide a clear, concise, and helpful answer to their question.
 Do not give away the full solution unless they explicitly ask for it. Guide them towards the answer.
