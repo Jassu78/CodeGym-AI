@@ -39,13 +39,15 @@ const prompt = ai.definePrompt({
 Topic: {{{topic}}}
 Language: {{{language}}}
 Complexity: {{{complexity}}}
+{{#if hints}}
 Hints: {{{hints}}}
+{{/if}}
 
 Problem Statement: A detailed description of the coding problem.
 Expected Output: The expected output of a correct solution to the coding problem.
 Code Skeleton (Optional): A starting point for the user's code, if applicable.
 
-Ensure the problem is well-defined and testable.  If there are no hints, don't mention hints in the response.
+Ensure the problem is well-defined and testable. If there are no hints, do not mention hints in the response.
 `,
 });
 
