@@ -10,16 +10,15 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const RunCodeInputSchema = z.object({
-  code: z.string().describe('The code to be executed.'),
-  language: z.enum(['java', 'python', 'c']).describe('The programming language of the code.'),
-  problemStatement: z.string().describe('The problem statement the code is trying to solve.'),
-  expectedOutput: z.string().describe('The expected output for a correct solution.'),
+  code: z.string(),
+  language: z.enum(['java', 'python', 'c']),
+  problem: z.string(),
 });
 export type RunCodeInput = z.infer<typeof RunCodeInputSchema>;
 
 const RunCodeOutputSchema = z.object({
-  status: z.enum(['correct', 'halfway', 'moderate', 'fail']).describe('The correctness of the code: correct (perfect), halfway (good progress), moderate (almost there), or fail (needs work).'),
-  output: z.string().describe('A concise analysis of the code execution with colored status tags and 4-5 lines of key information.'),
+  status: z.enum(['correct', 'halfway', 'moderate', 'fail']),
+  output: z.string(),
 });
 export type RunCodeOutput = z.infer<typeof RunCodeOutputSchema>;
 
@@ -39,7 +38,7 @@ CODE EXECUTED:
 \`\`\`
 
 PROBLEM STATEMENT:
-{{{problemStatement}}}
+{{{problem}}}
 
 CRITICAL REQUIREMENTS:
 - Generate EXACTLY this format with NO variations

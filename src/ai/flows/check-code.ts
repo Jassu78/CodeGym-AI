@@ -10,14 +10,15 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const CheckCodeInputSchema = z.object({
-  code: z.string().describe('The code to be checked.'),
-  language: z.enum(['java', 'python', 'c']).describe('The programming language of the code.'),
+  code: z.string(),
+  language: z.enum(['java', 'python', 'c']),
+  problem: z.string(),
 });
 export type CheckCodeInput = z.infer<typeof CheckCodeInputSchema>;
 
 const CheckCodeOutputSchema = z.object({
-  feedback: z.string().describe('Well-formatted feedback on the code quality with clear structure.'),
-  suggestions: z.string().describe('Structured improvement suggestions with actionable steps.'),
+  feedback: z.string(),
+  suggestions: z.string(),
 });
 export type CheckCodeOutput = z.infer<typeof CheckCodeOutputSchema>;
 
@@ -35,6 +36,9 @@ CODE TO REVIEW:
 \`\`\`{{language}}
 {{{code}}}
 \`\`\`
+
+PROBLEM CONTEXT:
+{{{problem}}}
 
 CRITICAL REQUIREMENTS:
 - Generate EXACTLY this format with NO variations

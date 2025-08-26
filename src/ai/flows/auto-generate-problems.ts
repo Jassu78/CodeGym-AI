@@ -10,17 +10,17 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const GenerateCodingProblemInputSchema = z.object({
-  topic: z.string().describe('The topic or path for which to generate a coding problem (e.g., "Fibonacci sequence", "prime number", "data structures", "algorithms").'),
-  language: z.enum(['java', 'python', 'c']).describe('The programming language for the coding problem.'),
-  complexity: z.enum(['easy', 'medium', 'hard']).optional().describe('The complexity level of the coding problem.').default('medium'),
-  hints: z.string().optional().describe('Any hints or suggestions to include in the coding problem.'),
+  topic: z.string(),
+  language: z.enum(['java', 'python', 'c']),
+  complexity: z.enum(['easy', 'medium', 'hard']).optional().default('medium'),
+  hints: z.string().optional(),
 });
 export type GenerateCodingProblemInput = z.infer<typeof GenerateCodingProblemInputSchema>;
 
 const GenerateCodingProblemOutputSchema = z.object({
-  problemStatement: z.string().describe('A well-structured, clear problem statement with proper formatting and examples.'),
-  expectedOutput: z.string().describe('Clear examples of expected output with proper formatting.'),
-  codeSkeleton: z.string().optional().describe('A well-formatted code skeleton or starting point for the user.'),
+  problemStatement: z.string(),
+  expectedOutput: z.string(),
+  codeSkeleton: z.string().optional(),
 });
 export type GenerateCodingProblemOutput = z.infer<typeof GenerateCodingProblemOutputSchema>;
 

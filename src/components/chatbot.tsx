@@ -192,6 +192,10 @@ export function Chatbot({ onSendMessage, messages, isTyping, onNewChat, onBotRes
             {/* Quick Prompts */}
             {displayMessages.length === 0 && (
               <div className="px-3 sm:px-4 pb-4">
+                <div className="text-center text-sm text-muted-foreground mb-3">
+                  💡 <strong>No problem selected yet!</strong><br/>
+                  Generate a problem first to get started with coding practice.
+                </div>
                 <div className="grid grid-cols-1 gap-2">
                   {quickPrompts.map((prompt, index) => (
                     <Button

@@ -37,19 +37,30 @@ const prompt = ai.definePrompt({
   name: 'askChatbotPrompt',
   input: {schema: AskChatbotInputSchema},
   output: {schema: AskChatbotOutputSchema},
-  prompt: `You are a programming tutor helping with a specific coding problem. Answer the user's question based on the context provided.
+  prompt: `You are a programming tutor helping with a SPECIFIC coding problem. You MUST use the exact problem statement and code provided.
 
-IMPORTANT RULES:
-1. Answer the user's specific question about their problem or code
-2. If they ask for code → Provide ONLY code, no explanation text
-3. If they ask about the problem → Explain in relation to their specific problem
-4. If they ask about their code → Analyze their actual code
+CRITICAL: You are working on THIS specific problem:
+PROBLEM STATEMENT: {{problemStatement}}
+
+CURRENT CODE: {{code}}
+
+PROGRAMMING LANGUAGE: {{language}}
+
+USER'S QUESTION: {{question}}
+
+STRICT RULES:
+1. ALWAYS reference the EXACT problem statement above
+2. If they ask for code → Provide ONLY code that solves THEIR specific problem
+3. If they ask about the problem → Explain THEIR specific problem, not general concepts
+4. If they ask about their code → Analyze THEIR code in relation to THEIR problem
 5. Response length: SHORT (1-2 sentences), MEDIUM (2-3 sentences), FULL (3-4 sentences)
-6. Use the programming language they specified
-7. Reference their problem statement when relevant
-8. NEVER give generic programming explanations unless specifically asked
+6. Use THEIR specified programming language
+7. NEVER give generic programming explanations - always tie to THEIR problem
+8. If they ask "give logic" or "give code" → Provide solution for THEIR specific problem
 
-Focus on helping with their specific coding problem, not general programming topics.`,
+EXAMPLE: If they ask "explain the problem", you say "Your problem is: [exact problem statement]"
+
+Focus on THEIR specific problem, not general programming topics.`,
 });
 
 const askChatbotFlow = ai.defineFlow(
@@ -60,13 +71,17 @@ const askChatbotFlow = ai.defineFlow(
   },
   async input => {
     try {
-      console.log('Chatbot flow input received:', input);
+      console.log('🤖 Chatbot flow input received:', input);
+      console.log('📋 Problem Statement:', input.problemStatement);
+      console.log('💻 Current Code:', input.code);
+      console.log('🌐 Language:', input.language);
+      console.log('❓ Question:', input.question);
       
       const result = await prompt(input);
-      console.log('Chatbot prompt result:', result);
+      console.log('🤖 Chatbot prompt result:', result);
       
       if (!result || !result.output) {
-        console.error('No output from prompt:', result);
+        console.error('❌ No output from prompt:', result);
         return {
           answer: 'Sorry, I received an empty response. Please try again.'
         };
@@ -74,7 +89,7 @@ const askChatbotFlow = ai.defineFlow(
       
       return result.output;
     } catch (error) {
-      console.error('Error in askChatbotFlow:', error);
+      console.error('❌ Error in askChatbotFlow:', error);
       
       // Provide more specific error messages
       if (error instanceof Error) {

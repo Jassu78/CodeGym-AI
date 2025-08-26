@@ -72,6 +72,24 @@ export default function Home() {
 
   const { toast } = useToast();
 
+  // Debug: Log problem state changes
+  useEffect(() => {
+    console.log('🔍 Problem state changed:', {
+      problem: problem,
+      problemStatement: problem?.problemStatement,
+      hasProblem: !!problem
+    });
+  }, [problem]);
+
+  // Ensure there's always a problem available
+  useEffect(() => {
+    if (!problem && !isGenerating) {
+      console.log('🚀 No problem available, generating default...');
+      // Use a more specific topic for better testing
+      handleGenerateProblem('Array Manipulation', 'java', 'easy');
+    }
+  }, [problem, isGenerating]);
+
   const handleGenerateProblem = useCallback(async (newTopic: string, newLanguage: Language, newComplexity: Complexity) => {
     setTopic(newTopic);
     setLanguage(newLanguage);
@@ -112,10 +130,19 @@ export default function Home() {
       return;
     }
 
+    if (!problem?.problemStatement) {
+      toast({
+        variant: 'destructive',
+        title: 'No Problem',
+        description: 'Please generate a problem first before checking code.',
+      });
+      return;
+    }
+
     setFeedback(null);
     startCheckingTransition(async () => {
       try {
-        const result = await checkCodeAction({ code, language, problem: problem?.problemStatement || 'No problem selected' });
+        const result = await checkCodeAction({ code, language, problem: problem.problemStatement });
         setFeedback(result);
       } catch (error) {
         console.error('Failed to check code:', error);
@@ -180,9 +207,49 @@ export default function Home() {
     setIsChatbotTyping(true);
 
     try {
+      // Check if we have a problem context
+      if (!problem?.problemStatement) {
+        const noProblemMessage: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          sender: 'bot',
+          text: 'I need a coding problem to work with! Please wait for the problem to load, or generate a new one using the "Generate Problem" button. Once you have a problem, I can help you with specific questions about it.',
+          timestamp: new Date(),
+          responseLength,
+        };
+        setChatHistory(prev => [...prev, noProblemMessage]);
+        setIsChatbotTyping(false);
+        return;
+      }
+
+      // Check if problem is still loading
+      if (isGenerating) {
+        const loadingMessage: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          sender: 'bot',
+          text: 'Please wait, I\'m still loading the problem. Once it\'s ready, I can help you with it!',
+          timestamp: new Date(),
+          responseLength,
+        };
+        setChatHistory(prev => [...prev, loadingMessage]);
+        setIsChatbotTyping(false);
+        return;
+      }
+
+      console.log('🔄 Sending to chatbot:', {
+        question: message,
+        problemStatement: problem.problemStatement,
+        code: code,
+        language: language,
+        responseLength
+      });
+
+      console.log('🔍 Full problem object:', problem);
+      console.log('🔍 Current code:', code);
+      console.log('🔍 Current language:', language);
+
       const response = await askChatbotAction({
         question: message,
-        problemStatement: problem?.problemStatement || '',
+        problemStatement: problem.problemStatement,
         code: code,
         language: language,
         history: chatHistory,

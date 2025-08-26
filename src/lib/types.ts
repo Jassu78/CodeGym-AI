@@ -3,13 +3,13 @@ import { z } from 'zod';
 // Schema for asking the chatbot
 export const askChatbotSchema = z.object({
   question: z.string().min(1, 'Question is required'),
-  problemStatement: z.string().describe('The problem statement the user is trying to solve.'),
-  code: z.string().optional().describe('The user\'s current code.'),
-  language: z.enum(['java', 'python', 'c']).describe('The programming language of the code.'),
+  problemStatement: z.string(),
+  code: z.string().optional(),
+  language: z.enum(['java', 'python', 'c']),
   history: z.array(z.object({
     sender: z.enum(['user', 'bot']),
     text: z.string(),
-  })).optional().describe('The conversation history.'),
+  })).optional(),
   responseLength: z.enum(['short', 'medium', 'full']).default('medium'),
 });
 
@@ -18,10 +18,10 @@ export type askChatbotInput = z.infer<typeof askChatbotSchema>;
 // Schema for enhancing imported problems
 export const enhanceImportedProblemSchema = z.object({
   topic: z.string().min(1, 'Topic is required'),
-  language: z.enum(['java', 'python', 'c']).describe('The programming language.'),
-  complexity: z.enum(['easy', 'medium', 'hard']).describe('The complexity level.'),
+  language: z.enum(['java', 'python', 'c']),
+  complexity: z.enum(['easy', 'medium', 'hard']),
   problemStatement: z.string().min(1, 'Problem statement is required'),
-  expectedOutput: z.string().describe('The expected output.'),
+  expectedOutput: z.string(),
 });
 
 export type enhanceImportedProblemInput = z.infer<typeof enhanceImportedProblemSchema>;

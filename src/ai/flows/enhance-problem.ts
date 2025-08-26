@@ -10,21 +10,19 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const EnhanceImportedProblemInputSchema = z.object({
-  problemStatement: z.string().describe('The raw problem statement copied from a website (like LeetCode).'),
-  expectedOutput: z.string().describe('The raw expected output copied from a website.'),
-  language: z.enum(['java', 'python', 'c']).describe('The programming language for the problem.'),
-  complexity: z.enum(['easy', 'medium', 'hard']).describe('The difficulty level of the problem.'),
-  topic: z.string().describe('The topic or category of the problem.'),
+  topic: z.string(),
+  language: z.enum(['java', 'python', 'c']),
+  complexity: z.enum(['easy', 'medium', 'hard']),
+  problemStatement: z.string(),
+  expectedOutput: z.string(),
 });
-
 export type EnhanceImportedProblemInput = z.infer<typeof EnhanceImportedProblemInputSchema>;
 
 const EnhanceImportedProblemOutputSchema = z.object({
-  problemStatement: z.string().describe('A clean, well-formatted problem statement with examples and constraints.'),
-  expectedOutput: z.string().describe('Clean, well-formatted expected output with test cases.'),
-  codeSkeleton: z.string().describe('A basic code skeleton for the specified programming language.'),
+  problemStatement: z.string(),
+  expectedOutput: z.string(),
+  codeSkeleton: z.string(),
 });
-
 export type EnhanceImportedProblemOutput = z.infer<typeof EnhanceImportedProblemOutputSchema>;
 
 export async function enhanceImportedProblem(input: EnhanceImportedProblemInput): Promise<EnhanceImportedProblemOutput> {
