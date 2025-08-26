@@ -22,54 +22,44 @@ const AskChatbotInputSchema = z.object({
   code: z.string().optional().describe('The user\'s current code.'),
   language: z.enum(['java', 'python', 'c']).describe('The programming language of the code.'),
   history: z.array(ChatMessageSchema).optional().describe('The conversation history.'),
+  responseLength: z.enum(['short', 'medium', 'full']).describe('The desired response length: short (concise), medium (balanced), or full (detailed).'),
 });
 export type AskChatbotInput = z.infer<typeof AskChatbotInputSchema>;
 
 const AskChatbotOutputSchema = z.object({
-  answer: z.string().describe('A helpful and concise answer to the user\'s question. The answer should be formatted as clean text, without any markdown like **.'),
+  answer: z.string().describe('A well-formatted, structured answer that matches the requested response length.'),
 });
 export type AskChatbotOutput = z.infer<typeof AskChatbotOutputSchema>;
 
 export async function askChatbot(input: AskChatbotInput): Promise<AskChatbotOutput> {
-  return askChatbotFlow(input);
+  try {
+    const result = await prompt(input);
+    return {
+      answer: result.output?.answer || 'Sorry, I could not generate a response at this time.'
+    };
+  } catch (error) {
+    console.error('Error in askChatbot:', error);
+    return {
+      answer: 'Sorry, I encountered an error. Please try again.'
+    };
+  }
 }
 
 const prompt = ai.definePrompt({
   name: 'askChatbotPrompt',
   input: {schema: AskChatbotInputSchema},
   output: {schema: AskChatbotOutputSchema},
-  prompt: `You are a friendly and helpful coding assistant bot. Your goal is to help a user solve a coding problem by answering their questions.
-The user is working on the following problem in {{language}}:
-Problem Statement: {{{problemStatement}}}
+  prompt: `SYSTEM: You are a programming tutor with strict behavior rules.
 
-{{#if code}}
-Their current code is:
-\`\`\`{{language}}
-{{{code}}}
-\`\`\`
-{{/if}}
+BEHAVIOR RULES:
+1. If user asks for code (contains: code, write, show, give, create, example) → Output ONLY code, no text
+2. If user asks regular questions → Respond conversationally based on length (SHORT: 1-2 sentences, MEDIUM: 2-3 sentences, FULL: 3-4 sentences)
+3. Use specified programming language
+4. Be friendly and helpful
 
-This is the conversation history so far:
-{{#each history}}
-**{{sender}}**: {{{text}}}
-{{/each}}
+EXAMPLE BEHAVIOR:
+Input: "give me code for hello world" → Output: "public class HelloWorld { public static void main(String[] args) { System.out.println(\"Hello, World!\"); } }"
+Input: "what is a variable?" → Output: "A variable is a container for storing data values in programming. It has a name and can hold different types of information like numbers, text, or objects."
 
-The user's new question is: "{{{question}}}"
-
-Please provide a clear, concise, and helpful answer to their question.
-Do not give away the full solution unless they explicitly ask for it. Guide them towards the answer.
-Format your response as clean text, without any markdown formatting such as asterisks for bolding.
-`,
+FOLLOW THESE RULES EXACTLY.`,
 });
-
-const askChatbotFlow = ai.defineFlow(
-  {
-    name: 'askChatbotFlow',
-    inputSchema: AskChatbotInputSchema,
-    outputSchema: AskChatbotOutputSchema,
-  },
-  async input => {
-    const {output} = await prompt(input);
-    return output!;
-  }
-);

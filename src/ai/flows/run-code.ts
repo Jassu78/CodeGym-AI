@@ -20,8 +20,8 @@ const RunCodeInputSchema = z.object({
 export type RunCodeInput = z.infer<typeof RunCodeInputSchema>;
 
 const RunCodeOutputSchema = z.object({
-  status: z.enum(['correct', 'moderate', 'wrong']).describe('The correctness of the code based on the output. "moderate" means the code is partially correct or has minor issues.'),
-  output: z.string().describe('The actual output of the code execution, or an explanation of the error if it fails.'),
+  status: z.enum(['correct', 'halfway', 'moderate', 'fail']).describe('The correctness of the code: correct (perfect), halfway (good progress), moderate (almost there), or fail (needs work).'),
+  output: z.string().describe('A concise analysis of the code execution with colored status tags and 4-5 lines of key information.'),
 });
 export type RunCodeOutput = z.infer<typeof RunCodeOutputSchema>;
 
@@ -33,24 +33,43 @@ const prompt = ai.definePrompt({
   name: 'runCodePrompt',
   input: {schema: RunCodeInputSchema},
   output: {schema: RunCodeOutputSchema},
-  prompt: `You are a code execution engine. You will be given a code snippet, the programming language, the problem statement, and the expected output.
-Your task is to "run" the code and determine if it correctly solves the problem.
+  prompt: `You are an expert code execution analyzer. Provide concise, actionable feedback using EXACT formatting.
 
-Language: {{{language}}}
-Problem Statement: {{{problemStatement}}}
-Expected Output: {{{expectedOutput}}}
-
-Code to evaluate:
-\`\`\`{{{language}}}
+CODE EXECUTED:
+\`\`\`{{language}}
 {{{code}}}
 \`\`\`
 
-Evaluate the code and determine its correctness. The status should be:
-- "correct" if the code runs and produces the exact expected output.
-- "moderate" if the code runs but the output is not exactly correct but close, or if the code is conceptually correct but has minor syntax errors that can be easily fixed.
-- "wrong" if the code has significant errors, does not compile/run, or produces output that is completely different from the expected output.
+PROBLEM STATEMENT:
+{{{problemStatement}}}
 
-Provide the actual output of the code, or a summary of the error if the code fails to run.`,
+CRITICAL REQUIREMENTS:
+- Generate EXACTLY this format with NO variations
+- Use colored status tags: 🟢 CORRECT, 🟡 HALFWAY, 🟠 MODERATE, 🔴 FAIL
+- Keep output concise: 4-5 lines maximum
+- Use proper markdown syntax that will render correctly
+- Focus on key insights and next steps
+
+REQUIRED FORMAT - COPY EXACTLY:
+
+**Status:** [🟢 CORRECT / 🟡 HALFWAY / 🟠 MODERATE / 🔴 FAIL]
+
+**Key Result:** [One sentence summary of what the code achieved]
+
+**Main Issue:** [Primary problem or area for improvement - 1 line]
+
+**Quick Fix:** [Specific actionable suggestion - 1 line]
+
+**Next Step:** [What to do next - 1 line]
+
+FORMATTING RULES:
+- **MUST** use **bold** for ALL headers
+- **MUST** use colored emoji tags for status
+- **MUST** keep each section to 1 line maximum
+- **MUST** use proper markdown syntax
+- **NEVER** exceed 5 lines total
+
+Provide concise analysis following this EXACT format.`,
 });
 
 const runCodeFlow = ai.defineFlow(

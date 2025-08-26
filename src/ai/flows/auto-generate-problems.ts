@@ -20,9 +20,9 @@ const GenerateCodingProblemInputSchema = z.object({
 export type GenerateCodingProblemInput = z.infer<typeof GenerateCodingProblemInputSchema>;
 
 const GenerateCodingProblemOutputSchema = z.object({
-  problemStatement: z.string().describe('The detailed problem statement for the coding challenge.'),
-  expectedOutput: z.string().describe('The expected output of the solution to the coding problem.'),
-  codeSkeleton: z.string().optional().describe('A code skeleton or starting point for the user, if applicable.'),
+  problemStatement: z.string().describe('A well-structured, clear problem statement with proper formatting and examples.'),
+  expectedOutput: z.string().describe('Clear examples of expected output with proper formatting.'),
+  codeSkeleton: z.string().optional().describe('A well-formatted code skeleton or starting point for the user.'),
 });
 export type GenerateCodingProblemOutput = z.infer<typeof GenerateCodingProblemOutputSchema>;
 
@@ -34,21 +34,59 @@ const prompt = ai.definePrompt({
   name: 'generateCodingProblemPrompt',
   input: {schema: GenerateCodingProblemInputSchema},
   output: {schema: GenerateCodingProblemOutputSchema},
-  prompt: `You are a coding problem generator. Generate a coding problem based on the provided topic, language, and complexity. Provide a clear problem statement, the expected output, and a code skeleton if appropriate.
+  prompt: `You are an expert coding problem creator. Generate a professional coding problem with EXACT formatting.
 
-Topic: {{{topic}}}
-Language: {{{language}}}
-Complexity: {{{complexity}}}
-{{#if hints}}
-Hints: {{{hints}}}
-{{/if}}
+TOPIC: {{topic}}
+LANGUAGE: {{language}}
+COMPLEXITY: {{complexity}}
 
-Problem Statement: A detailed description of the coding problem.
-Expected Output: The expected output of a correct solution to the coding problem.
-Code Skeleton (Optional): A starting point for the user's code, if applicable.
+CRITICAL REQUIREMENTS:
+- Generate EXACTLY this format with NO variations
+- Use **bold** for ALL section headers (must have ** on both sides)
+- Use proper markdown syntax that will render correctly
+- NO inline code blocks, NO "Code Block" text
+- Keep content clean and professional
 
-Ensure the problem is well-defined and testable. If there are no hints, do not mention hints in the response.
-`,
+REQUIRED FORMAT - COPY EXACTLY:
+
+**PROBLEM STATEMENT:**
+[Clear, concise problem description in 2-3 sentences]
+
+**Examples:**
+**Example 1:**
+Input: [input format]
+Output: [output format]
+
+**Example 2:**
+Input: [input format]
+Output: [output format]
+
+**Constraints:**
+- [constraint 1]
+- [constraint 2]
+- [constraint 3]
+
+**EXPECTED OUTPUT:**
+**Test Cases:**
+[Clear test cases with input/output pairs]
+
+**Performance Requirements:**
+[Time/space complexity if applicable]
+
+**CODE SKELETON:**
+\`\`\`{{language}}
+[Language-specific starting code with proper structure]
+\`\`\`
+
+FORMATTING RULES:
+- **MUST** use **bold** for ALL headers (Example: **PROBLEM STATEMENT:**)
+- **MUST** use proper markdown syntax
+- **MUST** separate sections with clear spacing
+- **MUST** use bullet points for lists
+- **MUST** use \`\`\`language\`\`\` for code blocks
+- **NEVER** use inline code or "Code Block" text
+
+Generate a problem following this EXACT format with proper markdown that will render correctly.`,
 });
 
 const generateCodingProblemFlow = ai.defineFlow(

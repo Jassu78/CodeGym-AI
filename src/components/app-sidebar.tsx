@@ -2,19 +2,6 @@
 
 import { useState } from 'react';
 import {
-  Sidebar,
-  SidebarHeader,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarMenuSub,
-  SidebarMenuSubItem,
-  SidebarMenuSubButton,
-} from '@/components/ui/sidebar';
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -22,7 +9,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Logo } from '@/components/icons';
-import { Coffee, FileCode, Binary, ChevronDown, type LucideIcon } from 'lucide-react';
+import { Coffee, FileCode, Binary, ChevronDown, type LucideIcon, X } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
@@ -37,6 +24,7 @@ interface AppSidebarProps {
   onTopicSelect: (topic: string, language: Language, complexity: Complexity) => void;
   onLanguageChange: (language: Language) => void;
   onComplexityChange: (complexity: Complexity) => void;
+  onClose?: () => void;
 }
 
 const codingPaths = [
@@ -102,30 +90,31 @@ const PathCollapsible = ({
         </Button>
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <SidebarMenuSub>
+        <div className="space-y-1 px-2">
           {path.topics.map((topic) => (
-            <SidebarMenuSubItem key={topic.name}>
-              <p className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">{topic.name}</p>
-              <SidebarMenu>
+            <div key={topic.name} className="space-y-1">
+              <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
+                {topic.name}
+              </div>
+              <div className="space-y-1">
                 {topic.problems.map((problem) => (
-                  <SidebarMenuItem key={problem}>
-                    <SidebarMenuSubButton
-                      onClick={() => {
-                        onLanguageChange(path.language as Language);
-                        onTopicSelect(problem, path.language as Language, currentComplexity);
-                      }}
-                      className="w-full text-left justify-start"
-                      size="sm"
-                      asChild
-                    >
-                      <button>{problem}</button>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuItem>
+                  <Button
+                    key={problem}
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      onLanguageChange(path.language as Language);
+                      onTopicSelect(problem, path.language as Language, currentComplexity);
+                    }}
+                    className="w-full text-left justify-start h-8 px-3 text-sm"
+                  >
+                    {problem}
+                  </Button>
                 ))}
-              </SidebarMenu>
-            </SidebarMenuSubItem>
+              </div>
+            </div>
           ))}
-        </SidebarMenuSub>
+        </div>
       </CollapsibleContent>
     </Collapsible>
   );
@@ -137,19 +126,36 @@ export function AppSidebar({
   onTopicSelect,
   onLanguageChange,
   onComplexityChange,
+  onClose,
 }: AppSidebarProps) {
   return (
-    <Sidebar>
-      <SidebarHeader>
-        <div className="flex items-center gap-2">
-          <Logo className="w-8 h-8 text-primary" />
-          <span className="font-bold text-lg font-headline">CodeGym AI</span>
+    <div className="w-full lg:w-80 border-r bg-background fixed left-0 top-0 h-full z-40 overflow-y-auto">
+      {/* Header */}
+      <div className="border-b px-4 sm:px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Logo className="w-8 h-8 text-primary" />
+            <span className="font-bold text-lg font-headline">CodeGym AI</span>
+          </div>
+          {onClose && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0 hover:bg-muted"
+              onClick={onClose}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
         </div>
-      </SidebarHeader>
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Options</SidebarGroupLabel>
-            <div className='px-2 space-y-2'>
+      </div>
+
+      {/* Content */}
+      <div className="p-3 sm:p-4 space-y-4 sm:space-y-6">
+        {/* Configuration Options */}
+        <div className="space-y-3 sm:space-y-4">
+          <div className="text-sm font-semibold text-muted-foreground">Configuration</div>
+          <div className="space-y-3">
             <div className="space-y-1">
               <Label htmlFor="language-select">Language</Label>
               <Select
@@ -183,24 +189,25 @@ export function AppSidebar({
               </Select>
             </div>
           </div>
-        </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupLabel>Coding Paths</SidebarGroupLabel>
-          <SidebarMenu>
+        </div>
+
+        {/* Coding Paths */}
+        <div className="space-y-3 sm:space-y-4">
+          <div className="text-sm font-semibold text-muted-foreground">Coding Paths</div>
+          <div className="space-y-2">
             {codingPaths.map((path) => (
-              <SidebarMenuItem key={path.language}>
-                <PathCollapsible
-                  path={path}
-                  onTopicSelect={onTopicSelect}
-                  currentLanguage={currentLanguage}
-                  currentComplexity={currentComplexity}
-                  onLanguageChange={onLanguageChange}
-                />
-              </SidebarMenuItem>
+              <PathCollapsible
+                key={path.language}
+                path={path}
+                onTopicSelect={onTopicSelect}
+                currentLanguage={currentLanguage}
+                currentComplexity={currentComplexity}
+                onLanguageChange={onLanguageChange}
+              />
             ))}
-          </SidebarMenu>
-        </SidebarGroup>
-      </SidebarContent>
-    </Sidebar>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
