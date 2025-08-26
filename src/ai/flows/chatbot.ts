@@ -1,5 +1,3 @@
-'use server';
-
 /**
  * @fileOverview A chatbot to help users with their coding problems.
  *

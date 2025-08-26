@@ -1,9 +1,7 @@
-'use server';
-
 /**
- * @fileOverview AI flow to enhance and format imported coding problems.
+ * @fileOverview Enhances imported problems with additional context and structure.
  *
- * - enhanceImportedProblem - A function that takes raw imported problem content and returns a clean, well-formatted problem.
+ * - enhanceImportedProblem - Enhances a raw problem statement.
  * - EnhanceImportedProblemInput - The input type for the enhanceImportedProblem function.
  * - EnhanceImportedProblemOutput - The return type for the enhanceImportedProblem function.
  */

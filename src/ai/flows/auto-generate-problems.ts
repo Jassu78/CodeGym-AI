@@ -1,11 +1,9 @@
-'use server';
-
 /**
- * @fileOverview Automatically generates coding problems based on a selected topic or path.
+ * @fileOverview Auto-generates coding problems based on user preferences.
  *
- * - generateCodingProblem - A function that generates a coding problem.
- * - GenerateCodingProblemInput - The input type for the generateCodingProblem function.
- * - GenerateCodingProblemOutput - The return type for the generateCodingProblem function.
+ * - generateProblem - Generates a new coding problem.
+ * - GenerateProblemInput - The input type for the generateProblem function.
+ * - GenerateProblemOutput - The return type for the generateProblem function.
  */
 
 import {ai} from '@/ai/genkit';

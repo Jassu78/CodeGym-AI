@@ -1,9 +1,7 @@
-'use server';
-
 /**
- * @fileOverview Runs the user's code and evaluates it for correctness against the problem statement.
+ * @fileOverview A function to run and analyze user code execution.
  *
- * - runCode - A function that executes code and returns correctness and output.
+ * - runCode - A function that executes user code and provides analysis.
  * - RunCodeInput - The input type for the runCode function.
  * - RunCodeOutput - The return type for the runCode function.
  */

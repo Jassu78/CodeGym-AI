@@ -1,11 +1,9 @@
-'use server';
-
 /**
- * @fileOverview Provides functionality to check code quality and provide feedback using AI.
+ * @fileOverview A function to check the quality of user code.
  *
- * - checkCode - Analyzes code and returns feedback and improvement suggestions.
- * - CheckCodeInput - The input type for the checkCode function, including the code and language.
- * - CheckCodeOutput - The return type for the checkCode function, containing feedback and suggestions.
+ * - checkCode - A function that analyzes user code and provides feedback.
+ * - CheckCodeInput - The input type for the checkCode function.
+ * - CheckCodeOutput - The return type for the checkCode function.
  */
 
 import {ai} from '@/ai/genkit';
