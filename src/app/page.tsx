@@ -337,34 +337,32 @@ export default function Home() {
             </PopoverTrigger>
             <PopoverContent className="w-96 mr-8 mb-2" side="top" align="end">
                 <div className="flex flex-col h-[400px]">
-                    <div className="flex-1 mb-4">
-                        <ScrollArea className="h-full pr-4">
-                            <div className="space-y-4">
-                                {chatHistory.length === 0 && (
-                                    <div className='flex items-center justify-center h-full text-muted-foreground'>
-                                        <p>Ask me anything about the problem!</p>
+                    <ScrollArea className="flex-1 mb-4 pr-4">
+                        <div className="space-y-4">
+                            {chatHistory.length === 0 && (
+                                <div className='flex items-center justify-center h-full text-muted-foreground'>
+                                    <p>Ask me anything about the problem!</p>
+                                </div>
+                            )}
+                            {chatHistory.map((msg, index) => (
+                                <div key={index} className={cn("flex items-start gap-3", msg.sender === 'user' ? 'justify-end' : '')}>
+                                    {msg.sender === 'bot' && <Avatar><AvatarFallback><Bot className='h-5 w-5' /></AvatarFallback></Avatar>}
+                                    <div className={cn("rounded-lg px-3 py-2 max-w-xs", msg.sender === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted')}>
+                                        <p className="text-sm">{msg.text}</p>
                                     </div>
-                                )}
-                                {chatHistory.map((msg, index) => (
-                                    <div key={index} className={cn("flex items-start gap-3", msg.sender === 'user' ? 'justify-end' : '')}>
-                                        {msg.sender === 'bot' && <Avatar><AvatarFallback><Bot className='h-5 w-5' /></AvatarFallback></Avatar>}
-                                        <div className={cn("rounded-lg px-3 py-2 max-w-xs", msg.sender === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted')}>
-                                            <p className="text-sm">{msg.text}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                                {isChatbotTyping && (
-                                    <div className="flex items-start gap-3">
-                                         <Avatar><AvatarFallback><Bot className='h-5 w-5' /></AvatarFallback></Avatar>
-                                         <div className="rounded-lg px-3 py-2 bg-muted">
-                                            <p className="text-sm">Typing...</p>
-                                         </div>
-                                    </div>
-                                )}
-                            </div>
-                        </ScrollArea>
-                    </div>
-                    <form onSubmit={handleChatSubmit} className="flex items-center gap-2">
+                                </div>
+                            ))}
+                            {isChatbotTyping && (
+                                <div className="flex items-start gap-3">
+                                     <Avatar><AvatarFallback><Bot className='h-5 w-5' /></AvatarFallback></Avatar>
+                                     <div className="rounded-lg px-3 py-2 bg-muted">
+                                        <p className="text-sm">Typing...</p>
+                                     </div>
+                                </div>
+                            )}
+                        </div>
+                    </ScrollArea>
+                    <form onSubmit={handleChatSubmit} className="flex items-center gap-2 pt-4 border-t">
                         <Input
                             value={chatInput}
                             onChange={(e) => setChatInput(e.target.value)}
