@@ -66,4 +66,4 @@ The application should now be running at [http://localhost:9002](http://localhos
 - `npm run dev`: Starts the Next.js development server.
 - `npm run build`: Builds the application for production.
 - `npm run start`: Starts a production server.
-- `npm run lint`: Lints the project files using Next.js's built-in ESLint configuration.
+- `npm run lint`: Lints the project files using Next.js's built-in ESLint configuration. 
