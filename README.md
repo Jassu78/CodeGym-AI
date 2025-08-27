@@ -266,4 +266,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 *Transform your coding skills with the power of AI!*
 
-[⬆ Back to top](#codegym-ai-)
+[⬆ Back to top](#codegym-ai-) 
