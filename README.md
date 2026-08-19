@@ -1,4 +1,4 @@
-# CodeGym AI: Your AI-Powered Coding Practice Arena
+# CodeGym AI:Your AI-Powered Coding Practice Arena
 
 CodeGym AI is a web application built with Next.js that helps you practice your coding skills. It leverages generative AI to provide a dynamic and interactive learning experience, complete with on-the-fly problem generation, code evaluation, quality analysis, and an assistant chatbot to help you when you're stuck.
 
